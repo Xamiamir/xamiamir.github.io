@@ -212,23 +212,140 @@ dialog#lb button{background:none;border:0;color:var(--amber);font:500 .95rem var
 <div class="shots"><div class="shot">Add screenshot: Nessus scan report</div><div class="shot">Add screenshot: Ansible patch run</div></div>
 </div></details>
 
+
 <details class="case" id="p4">
-<summary><span class="id">CASE 04 · Malware analysis (simulated critical-infrastructure incident)</span>
-<h3>Malware Threat Intelligence &amp; SOC Response for Grid Sentinel OT Security</h3><span class="plus" aria-hidden="true">+</span>
-<div class="chips"><span class="chip">FLARE VM</span><span class="chip">ProcMon</span><span class="chip">RegShot</span><span class="chip">Wireshark</span><span class="chip">FakeNet-NG</span><span class="chip">VirusTotal</span><span class="chip">ThreatFox</span><span class="chip">YARA</span><span class="chip">MITRE ATT&amp;CK</span></div></summary>
-<div class="body">
-<h4>Context</h4>
-<p>A suspicious executable was flagged through C2 beaconing in a simulated critical-infrastructure environment. I ran the full response, from first analysis to the stakeholder briefing.</p>
-<h4>What I did</h4>
-<ul>
-<li>Static analysis of headers, imports, resources and strings.</li>
-<li>Dynamic analysis in an isolated FLARE VM using ProcMon, RegShot, Wireshark and FakeNet-NG.</li>
-<li>Documented registry persistence and HTTP beaconing, then extracted IOCs.</li>
-<li>Correlated the IOCs with VirusTotal and ThreatFox and mapped behaviour to MITRE ATT&amp;CK.</li>
-</ul>
-<h4>Deliverables</h4>
-<p>A YARA rule, a containment plan, a forensic report and a stakeholder briefing.</p>
-</div></details>
+  <summary>
+    <span class="id">CASE 04 · Malware Analysis</span>
+    <h3>Malware Threat Intelligence &amp; SOC Response
+      — Grid Sentinel OT Security</h3>
+    <span class="plus" aria-hidden="true">+</span>
+    <div class="chips">
+      <span class="chip">FLARE-VM</span>
+      <span class="chip">ProcMon</span>
+      <span class="chip">RegShot</span>
+      <span class="chip">Wireshark</span>
+      <span class="chip">FakeNet-NG</span>
+      <span class="chip">MITRE ATT&amp;CK</span>
+    </div>
+  </summary>
+
+  <div class="body">
+    <h4>Investigation Overview</h4>
+    <p>
+      Conducted a controlled malware investigation in a
+      Windows 10 FLARE-VM laboratory, using a simulated
+      critical-infrastructure security scenario.
+      The objective was to investigate suspicious executable
+      behaviour, identify indicators of compromise (IOCs),
+      and develop evidence-based SOC response recommendations.
+    </p>
+
+    <h4>01 / Static Malware Analysis</h4>
+    <ul>
+      <li>Recorded the executable's SHA-256 identifier.</li>
+      <li>Used Dependency Walker to inspect imported DLLs.</li>
+      <li>Identified MSCOREE.DLL and _CorExeMain,
+          suggesting a managed .NET executable.</li>
+      <li>Inspected the executable manifest with Resource Hacker.</li>
+      <li>Observed an asInvoker execution-level declaration.</li>
+      <li>Used Strings and PE inspection tools to support
+          preliminary investigation.</li>
+    </ul>
+
+    <h4>02 / Dynamic Analysis Environment</h4>
+    <ul>
+      <li>Configured Windows 10 FLARE-VM in VirtualBox.</li>
+      <li>Created a VM snapshot before execution.</li>
+      <li>Configured host-only networking for the lab.</li>
+      <li>Recorded the VM address as 192.168.102.101.</li>
+      <li>Prepared ProcMon, Wireshark, RegShot
+          and FakeNet-NG for behavioural monitoring.</li>
+    </ul>
+
+    <h4>03 / Network Investigation</h4>
+    <p>
+      FakeNet-NG recorded a DNS request associated with
+      the suspicious executable for the domain:
+    </p>
+    <p><code>fortyfive5.ydns.eu</code></p>
+    <p>
+      The tool also logged an attempted TCP connection to
+      the simulated destination 192.0.2.123 on port 5212.
+      Wireshark captured repeated DNS queries and TCP SYN
+      attempts.
+    </p>
+    <p>
+      These observations indicated attempted outbound
+      communication consistent with possible command-and-control
+      activity. Successful external communication or
+      exfiltration was not confirmed.
+    </p>
+
+    <h4>04 / Process Behaviour Investigation</h4>
+    <ul>
+      <li>Used ProcMon Process Tree to investigate execution.</li>
+      <li>Observed multiple executable instances.</li>
+      <li>Reviewed associated processes including
+          ermages.exe, cmd.exe and WerFault.exe.</li>
+      <li>Identified executable metadata referencing
+          "License Review Application".</li>
+      <li>Documented process-spawning behaviour without
+          assuming confirmed process injection.</li>
+    </ul>
+
+    <h4>05 / Registry Investigation</h4>
+    <p>
+      Compared pre-execution and post-execution registry
+      snapshots using RegShot.
+    </p>
+    <div class="stats">
+      <div>
+        <b>92</b>
+        <span>Registry keys added</span>
+      </div>
+      <div>
+        <b>21</b>
+        <span>Registry keys deleted</span>
+      </div>
+    </div>
+    <p>
+      Registry differences were observed, but not every
+      change could be attributed to the malware.
+      Persistence through a Run key was not independently
+      confirmed.
+    </p>
+
+    <h4>06 / Indicators of Compromise</h4>
+    <ul>
+      <li>Suspicious domain: fortyfive5.ydns.eu</li>
+      <li>Simulated destination: 192.0.2.123:5212</li>
+      <li>Suspicious process-spawning activity</li>
+      <li>Registry changes requiring further attribution</li>
+    </ul>
+
+    <h4>07 / SOC Response Recommendations</h4>
+    <ul>
+      <li>Investigate DNS requests for the identified domain.</li>
+      <li>Correlate network events with process execution logs.</li>
+      <li>Review endpoint persistence mechanisms.</li>
+      <li>Escalate suspicious execution to the incident
+          response team.</li>
+      <li>Isolate affected endpoints when supported by
+          incident evidence and response procedures.</li>
+      <li>Preserve process, registry and network evidence.</li>
+    </ul>
+
+    <h4>Investigation Outcome</h4>
+    <p>
+      Identified suspicious DNS activity, attempted TCP
+      communication, process-spawning behaviour and registry
+      modifications. Produced an evidence-led assessment
+      distinguishing confirmed observations from suspected
+      malicious capabilities.
+    </p>
+  </div>
+</details>
+
 
 
 <details class="case" id="p6">
